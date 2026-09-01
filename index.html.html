@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potansiyeli Geliştirme Merkezi</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #0b0f1a;
+            color: #e5e9f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #141a26;
+            padding: 30px;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            margin: 20px auto;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #a78bfa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0 12px;
+            color: #c4b5fd;
+        }
+        label {
+            font-weight: 500;
+            display: block;
+            margin: 14px 0 4px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 14px;
+            color: #f3f4f6;
+            font-size: 15px;
+            transition: 0.2s;
+            outline: none;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: 0.15s;
+        }
+        button:hover {
+            background: #6d28d9;
+            transform: scale(1.01);
+        }
+        .btn-secondary {
+            background: #374151;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .card {
+            background: #1e293b;
+            padding: 18px 20px;
+            border-radius: 20px;
+            margin: 14px 0;
+            border-left: 5px solid #7c3aed;
+        }
+        .badge {
+            display: inline-block;
+            background: #374151;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #d1d5db;
+        }
+        .text-muted {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .flex {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .flex button {
+            width: auto;
+            flex: 1;
+        }
+        #chatLog {
+            background: #111827;
+            border-radius: 16px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #374151;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .msg-user {
+            color: #a78bfa;
+        }
+        .msg-assistant {
+            color: #6ee7b7;
+        }
+        .msg-system {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+
+    <h1>🤖 Potansiyeli Geliştirme Merkezi</h1>
+
+    <!-- GİRİŞ / KAYIT -->
+    <div id="authSection">
+        <div id="loginForm">
+            <h2>Giriş Yap</h2>
+            <label>E-posta</label>
+            <input id="loginEmail" type="email" placeholder="ornek@mail.com" />
+            <label>Şifre</label>
+            <input id="loginPassword" type="password" placeholder="••••••••" />
+            <button onclick="login()">Giriş Yap</button>
+            <p style="margin-top:16px; text-align:center; color:#9ca3af;">Hesabın yok mu? <a href="#" onclick="showRegister()">Kayıt Ol</a></p>
+        </div>
+
+        <div id="registerForm" class="hidden">
+            <h2>Kayıt Ol</h2>
+            <label>Ad Soyad</label>
+            <input id="regName" type="text" placeholder="Ad Soyad" />
+            <label>E-posta</label>
+            <input id="regEmail" type="email" placeholder="ornek@mail.com" />
+            <label>Şifre</label>
+            <input id="regPassword" type="password" placeholder="••••••••" />
+            <label>Rol</label>
+            <select id="regRole">
+                <option value="öğretmen">Öğretmen / Hizmet Veren</option>
+                <option value="veli">Veli / Müşteri</option>
+            </select>
+            <button onclick="register()">Kaydol</button>
+            <p style="margin-top:16px; text-align:center; color:#9ca3af;">Zaten hesabın var mı? <a href="#" onclick="showLogin()">Giriş Yap</a></p>
+        </div>
+    </div>
+
+    <!-- PANEL -->
+    <div id="panelSection" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span style="font-size:18px; font-weight:600;">👋 Hoş geldin, <span id="userNameDisplay">---</span></span>
+            <button class="btn-secondary" style="width:auto; padding:8px 20px;" onclick="logout()">Çıkış</button>
+        </div>
+
+        <!-- ASİSTAN EĞİTİMİ -->
+        <div style="background:#1e293b; border-radius:20px; padding:20px; margin-bottom:20px;">
+            <h2>🧠 Asistanını Eğit</h2>
+            <p class="text-muted">Kendini, uzmanlığını, ücretini ve tarzını anlat. Asistanın seni tanısın.</p>
+            <textarea id="assistantTraining" rows="4" placeholder="Örn: Ben Ayşe, 12 yıllık matematik öğretmeniyim. Sabırlıyım, öğrenciyle iyi iletişim kurarım. Saat ücretim 2500 TL."></textarea>
+            <button onclick="saveAssistantProfile()">💾 Asistanımı Kaydet</button>
+            <div id="assistantStatus" class="text-muted" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- TALEP OLUŞTUR -->
+        <div style="background:#1e293b; border-radius:20px; padding:20px; margin-bottom:20px;">
+            <h2>📢 Yeni Talep Oluştur</h2>
+            <label>Başlık</label>
+            <input id="requestTitle" placeholder="Örn: Matematik özel ders" />
+            <label>Kategori</label>
+            <select id="requestCategory">
+                <option value="Eğitim">Eğitim</option>
+                <option value="Tamirat">Tamirat</option>
+                <option value="Yemek">Yemek & Tatlı</option>
+                <option value="Etkinlik">Etkinlik</option>
+                <option value="Danışmanlık">Danışmanlık</option>
+                <option value="Tasarım">Tasarım</option>
+                <option value="Temizlik">Temizlik</option>
+                <option value="Nakliyat">Nakliyat</option>
+                <option value="Diğer">Diğer</option>
+            </select>
+            <label>Açıklama</label>
+            <textarea id="requestDescription" rows="3" placeholder="Detayları yaz..."></textarea>
+            <label>Bütçe (opsiyonel)</label>
+            <input id="requestBudget" placeholder="Örn: 1500 TL" />
+            <button onclick="createRequest()">📤 Talebi Yayınla</button>
+        </div>
+
+        <!-- TALEPLER VE TEKLİFLER -->
+        <div id="requestsContainer">
+            <h2>📋 Talepler</h2>
+            <div id="requestsList" class="text-muted">Henüz talep yok.</div>
+        </div>
+
+        <div id="offersContainer" class="hidden" style="margin-top:20px;">
+            <h2>📩 Teklifler</h2>
+            <div id="offersList" class="text-muted"></div>
+        </div>
+
+        <!-- CANLI SOHBET LOG'U -->
+        <div style="margin-top:30px;">
+            <h2>💬 Asistan Görüşmeleri</h2>
+            <div id="chatLog">Sistem hazır. Talep oluşturunca asistanlar konuşmaya başlayacak.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DB_KEY = 'hayat_asistani_data';
+
+    function getDB() {
+        const raw = localStorage.getItem(DB_KEY);
+        if (!raw) {
+            const initial = { users: [], profiles: [], requests: [], offers: [], chats: [] };
+            localStorage.setItem(DB_KEY, JSON.stringify(initial));
+            return initial;
+        }
+        try { return JSON.parse(raw); } catch { return { users: [], profiles: [], requests: [], offers: [], chats: [] }; }
+    }
+
+    function saveDB(db) {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+    }
+
+    function getCurrentUser() {
+        const email = localStorage.getItem('loggedInUser');
+        if (!email) return null;
+        const db = getDB();
+        return db.users.find(u => u.email === email) || null;
+    }
+
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 4); }
+
+    function showRegister() {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('registerForm').classList.remove('hidden');
+    }
+
+    function showLogin() {
+        document.getElementById('registerForm').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+    }
+
+    function register() {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        const role = document.getElementById('regRole').value;
+
+        if (!name || !email || !password) { alert('Tüm alanları doldur.'); return; }
+        const db = getDB();
+        if (db.users.find(u => u.email === email)) { alert('Bu e-posta zaten kayıtlı.'); return; }
+
+        db.users.push({ name, email, password, role, created: new Date().toISOString() });
+        saveDB(db);
+        alert('Kayıt başarılı! Şimdi giriş yap.');
+        showLogin();
+    }
+
+    function login() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const db = getDB();
+        const user = db.users.find(u => u.email === email && u.password === password);
+        if (!user) { alert('E-posta veya şifre hatalı.'); return; }
+        localStorage.setItem('loggedInUser', email);
+        renderPanel();
+    }
+
+    function logout() {
+        localStorage.removeItem('loggedInUser');
+        document.getElementById('panelSection').classList.add('hidden');
+        document.getElementById('authSection').classList.remove('hidden');
+    }
+
+    function renderPanel() {
+        const user = getCurrentUser();
+        if (!user) { logout(); return; }
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('panelSection').classList.remove('hidden');
+        document.getElementById('userNameDisplay').textContent = user.name;
+
+        const db = getDB();
+        const profile = db.profiles.find(p => p.userEmail === user.email);
+        if (profile) {
+            document.getElementById('assistantTraining').value = profile.text || '';
+            document.getElementById('assistantStatus').textContent = '✅ Asistan profilin kaydedilmiş.';
+        } else {
+            document.getElementById('assistantStatus').textContent = '📝 Henüz asistanını eğitmedin.';
+        }
+
+        renderRequests();
+        renderOffers();
+    }
+
+    function saveAssistantProfile() {
+        const user = getCurrentUser();
+        if (!user) return;
+        const text = document.getElementById('assistantTraining').value.trim();
+        if (!text) { alert('Lütfen asistanına kendini anlat.'); return; }
+        const db = getDB();
+        const existing = db.profiles.findIndex(p => p.userEmail === user.email);
+        if (existing > -1) {
+            db.profiles[existing].text = text;
+            db.profiles[existing].updated = new Date().toISOString();
+        } else {
+            db.profiles.push({ userEmail: user.email, text, created: new Date().toISOString() });
+        }
+        saveDB(db);
+        document.getElementById('assistantStatus').textContent = '✅ Asistan profilin kaydedildi!';
+    }
+
+    function createRequest() {
+        const user = getCurrentUser();
+        if (!user) return;
+        const title = document.getElementById('requestTitle').value.trim();
+        const category = document.getElementById('requestCategory').value;
+        const description = document.getElementById('requestDescription').value.trim();
+        const budget = document.getElementById('requestBudget').value.trim();
+
+        if (!title || !description) { alert('Başlık ve açıklama gerekli.'); return; }
+
+        const db = getDB();
+        const newReq = {
+            id: generateId(),
+            userEmail: user.email,
+            userName: user.name,
+            title,
+            category,
+            description,
+            budget: budget || 'Belirtilmemiş',
+            status: 'Aktif',
+            createdAt: new Date().toISOString()
+        };
+        db.requests.unshift(newReq);
+        saveDB(db);
+        renderRequests();
+        document.getElementById('requestTitle').value = '';
+        document.getElementById('requestDescription').value = '';
+        document.getElementById('requestBudget').value = '';
+        alert('✅ Talep yayınlandı!');
+        startAIConversation(newReq.id);
+    }
+
+    function renderRequests() {
+        const user = getCurrentUser();
+        if (!user) return;
+        const db = getDB();
+        const container = document.getElementById('requestsList');
+        const allRequests = db.requests.filter(r => r.status === 'Aktif' || r.userEmail === user.email);
+        if (allRequests.length === 0) {
+            container.innerHTML = '<div class="text-muted">Henüz talep yok.</div>';
+            return;
+        }
+        let html = '';
+        allRequests.forEach(r => {
+            const isMine = r.userEmail === user.email;
+            html += `<div class="card">
+                <strong>${r.title}</strong> <span class="badge">${r.category}</span>
+                <div style="margin:6px 0;">${r.description}</div>
+                <div class="text-muted">💰 ${r.budget} | 👤 ${r.userName} | ${r.status}</div>
+                ${!isMine ? `<button class="btn-secondary" style="width:auto; padding:8px 18px; margin-top:6px;" onclick="makeOffer('${r.id}')">📩 Teklif Ver</button>` : ''}
+                ${isMine ? `<div class="text-muted" style="margin-top:6px;">Bu senin talebin.</div>` : ''}
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function makeOffer(requestId) {
+        const user = getCurrentUser();
+        if (!user) return;
+        const price = prompt('Teklif ettiğin ücret (TL):');
+        if (price === null) return;
+        if (!price.trim() || isNaN(price)) { alert('Geçerli bir sayı gir.'); return; }
+        const note = prompt('Ek not (opsiyonel):');
+        const db = getDB();
+        const req = db.requests.find(r => r.id === requestId);
+        if (!req) { alert('Talep bulunamadı.'); return; }
+
+        db.offers.push({
+            id: generateId(),
+            requestId: requestId,
+            userEmail: user.email,
+            userName: user.name,
+            price: parseFloat(price),
+            note: note || '',
+            status: 'Bekliyor',
+            createdAt: new Date().toISOString()
+        });
+        saveDB(db);
+        alert('✅ Teklif gönderildi!');
+        renderOffers();
+    }
+
+    function renderOffers() {
+        const user = getCurrentUser();
+        if (!user) return;
+        const db = getDB();
+        const container = document.getElementById('offersList');
+        const userOffers = db.offers.filter(o => o.userEmail === user.email);
+        const receivedOffers = db.offers.filter(o => {
+            const req = db.requests.find(r => r.id === o.requestId);
+            return req && req.userEmail === user.email && o.userEmail !== user.email;
+        });
+
+        let html = '';
+        if (userOffers.length === 0 && receivedOffers.length === 0) {
+            container.innerHTML = '<div class="text-muted">Henüz teklif yok.</div>';
+            document.getElementById('offersContainer').classList.add('hidden');
+            return;
+        }
+        document.getElementById('offersContainer').classList.remove('hidden');
+
+        if (userOffers.length > 0) {
+            html += `<h3 style="margin-top:14px;">Senin verdiğin teklifler</h3>`;
+            userOffers.forEach(o => {
+                html += `<div class="card"><strong>${o.userName}</strong> → ${o.price} TL<br><span class="text-muted">${o.note}</span><br><span class="badge">${o.status}</span></div>`;
+            });
+        }
+        if (receivedOffers.length > 0) {
+            html += `<h3 style="margin-top:14px;">Sana gelen teklifler</h3>`;
+            receivedOffers.forEach(o => {
+                html += `<div class="card"><strong>${o.userName}</strong> → ${o.price} TL<br><span class="text-muted">${o.note}</span><br><button class="btn-secondary" style="width:auto; padding:6px 14px; margin-top:6px;" onclick="acceptOffer('${o.id}')">✅ Kabul Et</button></div>`;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    function acceptOffer(offerId) {
+        if (!confirm('Bu teklifi kabul ediyor musun?')) return;
+        const db = getDB();
+        const offer = db.offers.find(o => o.id === offerId);
+        if (!offer) return;
+        offer.status = 'Kabul Edildi';
+        const req = db.requests.find(r => r.id === offer.requestId);
+        if (req) req.status = 'Anlaşma Sağlandı';
+        saveDB(db);
+        alert('✅ Anlaşma sağlandı!');
+        renderOffers();
+        renderRequests();
+    }
+
+    async function startAIConversation(requestId) {
+        const db = getDB();
+        const request = db.requests.find(r => r.id === requestId);
+        if (!request) return;
+
+        const teachers = db.users.filter(u => u.role === 'öğretmen');
+        if (teachers.length === 0) {
+            addChatMessage('Sistem', 'Henüz kayıtlı öğretmen yok. Teklif bekleniyor.', 'system');
+            return;
+        }
+
+        addChatMessage('Sistem', `📢 Yeni talep: "${request.title}" için ${teachers.length} öğretmen asistanı devrede.`, 'system');
+
+        for (const teacher of teachers) {
+            const profile = db.profiles.find(p => p.userEmail === teacher.email);
+            if (!profile) {
+                addChatMessage('Sistem', `${teacher.name} henüz asistanını eğitmemiş.`, 'system');
+                continue;
+            }
+
+            const aiResponse = await callOpenAI(profile.text, request);
+            if (aiResponse) {
+                const priceMatch = aiResponse.match(/(\d+)\s*TL/i);
+                const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
+
+                const offer = {
+                    id: generateId(),
+                    requestId: request.id,
+                    userEmail: teacher.email,
+                    userName: teacher.name,
+                    price: price || 0,
+                    note: aiResponse.substring(0, 200),
+                    status: 'Bekliyor',
+                    createdAt: new Date().toISOString()
+                };
+                db.offers.push(offer);
+                saveDB(db);
+                addChatMessage(teacher.name, aiResponse, 'assistant');
+            }
+        }
+
+        const offers = db.offers.filter(o => o.requestId === request.id && o.status === 'Bekliyor');
+        if (offers.length > 0) {
+            const best = offers.reduce((a, b) => a.price < b.price ? a : b);
+            addChatMessage('Sistem', `🏆 En uygun teklif: ${best.userName} - ${best.price} TL. Veli onayı bekleniyor.`, 'system');
+        }
+
+        renderOffers();
+        renderRequests();
+    }
+
+    async function callOpenAI(profileText, request) {
+        // DEMO: Gerçek OpenAI bağlantısı için Cloudflare Workers eklenecek
+        return `${profileText.split('.')[0]} Bu talebe uygun bir teklif hazırladım. Fiyat: ${Math.floor(Math.random() * 500 + 500)} TL. Detaylar için görüşelim.`;
+    }
+
+    function addChatMessage(sender, message, type = 'user') {
+        const log = document.getElementById('chatLog');
+        const time = new Date().toLocaleTimeString();
+        const cls = type === 'user' ? 'msg-user' : type === 'assistant' ? 'msg-assistant' : 'msg-system';
+        log.innerHTML += `<div class="${cls}">[${time}] <strong>${sender}:</strong> ${message}</div>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    window.onload = function() {
+        const user = getCurrentUser();
+        if (user) {
+            renderPanel();
+        } else {
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('panelSection').classList.add('hidden');
+        }
+    };
+</script>
+
+</body>
+</html>
